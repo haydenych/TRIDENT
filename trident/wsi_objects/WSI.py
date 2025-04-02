@@ -3,6 +3,7 @@ import numpy as np
 import openslide
 from PIL import Image
 import os 
+import sys
 import warnings
 import torch 
 from typing import List, Tuple, Optional
@@ -465,8 +466,15 @@ class OpenSlideWSI:
         precision = segmentation_model.precision
         device = segmentation_model.device
         eval_transforms = segmentation_model.eval_transforms
+
         dataset = WSIPatcherDataset(patcher, eval_transforms)
-        dataloader = DataLoader(dataset, batch_size=batch_size, num_workers=get_num_workers(batch_size, max_workers=self.max_workers), pin_memory=True)
+        if sys.platform == "linux":
+            dataloader = DataLoader(dataset, 
+                                    batch_size=batch_size, 
+                                    num_workers=get_num_workers(batch_size, max_workers=self.max_workers), 
+                                    pin_memory=True)  
+        else:
+            dataloader = DataLoader(dataset, batch_size=batch_size, pin_memory=True)
 
         mpp_reduction_factor = self.mpp / destination_mpp
         width, height = self.get_dimensions()
@@ -829,8 +837,15 @@ class OpenSlideWSI:
             coords_only=False,
             pil=True
         )
+
         dataset = WSIPatcherDataset(patcher, patch_transforms)
-        dataloader = DataLoader(dataset, batch_size=batch_limit, num_workers=get_num_workers(batch_limit, max_workers=self.max_workers), pin_memory=True)
+        if sys.platform == "linux":
+            dataloader = DataLoader(dataset, 
+                                    batch_size=batch_limit, 
+                                    num_workers=get_num_workers(batch_limit, max_workers=self.max_workers), 
+                                    pin_memory=True)  
+        else:
+            dataloader = DataLoader(dataset, batch_size=batch_limit, pin_memory=True)
 
         features = []
         for imgs, _ in dataloader:
