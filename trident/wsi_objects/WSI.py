@@ -3,6 +3,7 @@ import numpy as np
 import openslide
 from PIL import Image
 import os 
+import sys
 import warnings
 import torch 
 from typing import List, Tuple, Optional
@@ -407,7 +408,6 @@ class OpenSlideWSI:
         return None
 
     @torch.inference_mode()
-    @torch.autocast(device_type="cuda", dtype=torch.float16)
     def segment_tissue(
         self,
         segmentation_model: torch.nn.Module,
@@ -471,8 +471,15 @@ class OpenSlideWSI:
         )
         precision = segmentation_model.precision
         eval_transforms = segmentation_model.eval_transforms
+
         dataset = WSIPatcherDataset(patcher, eval_transforms)
-        dataloader = DataLoader(dataset, batch_size=batch_size, num_workers=get_num_workers(batch_size, max_workers=self.max_workers), pin_memory=True)
+        if sys.platform == "linux":
+            dataloader = DataLoader(dataset, 
+                                    batch_size=batch_size, 
+                                    num_workers=get_num_workers(batch_size, max_workers=self.max_workers), 
+                                    pin_memory=True)  
+        else:
+            dataloader = DataLoader(dataset, batch_size=batch_size, pin_memory=True)
 
         mpp_reduction_factor = self.mpp / destination_mpp
         width, height = self.get_dimensions()
@@ -839,13 +846,20 @@ class OpenSlideWSI:
             coords_only=False,
             pil=True
         )
+
         dataset = WSIPatcherDataset(patcher, patch_transforms)
-        dataloader = DataLoader(dataset, batch_size=batch_limit, num_workers=get_num_workers(batch_limit, max_workers=self.max_workers), pin_memory=True)
+        if sys.platform == "linux":
+            dataloader = DataLoader(dataset, 
+                                    batch_size=batch_limit, 
+                                    num_workers=get_num_workers(batch_limit, max_workers=self.max_workers), 
+                                    pin_memory=True)  
+        else:
+            dataloader = DataLoader(dataset, batch_size=batch_limit, pin_memory=True)
 
         features = []
         for imgs, _ in dataloader:
             imgs = imgs.to(device)
-            with torch.autocast(device_type='cuda', dtype=precision, enabled=(precision != torch.float32)):
+            with torch.autocast(device_type=device.split(":")[0], dtype=precision, enabled=(precision != torch.float32)):
                 batch_features = patch_encoder(imgs)  
             features.append(batch_features.cpu().numpy())
 
@@ -949,7 +963,7 @@ class OpenSlideWSI:
         }
 
         # Generate slide-level features
-        with torch.autocast(device_type='cuda', enabled=(slide_encoder.precision != torch.float32)):
+        with torch.autocast(device_type=device.split(":")[0], enabled=(slide_encoder.precision != torch.float32)):
             features = slide_encoder(batch, device)
         features = features.float().cpu().numpy().squeeze()
 

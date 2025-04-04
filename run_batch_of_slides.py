@@ -142,7 +142,7 @@ def run_task(processor, args):
             processor.run_patch_feature_extraction_job(
                 coords_dir=args.coords_dir or f'{args.mag}x_{args.patch_size}px_{args.overlap}px_overlap',
                 patch_encoder=encoder,
-                device=f'cuda:{args.gpu}',
+                device=args.device,
                 saveas='h5',
                 batch_limit=args.batch_size,
             )
@@ -154,7 +154,7 @@ def run_task(processor, args):
             processor.run_slide_feature_extraction_job(
                 slide_encoder=encoder,
                 coords_dir=args.coords_dir or f'{args.mag}x_{args.patch_size}px_{args.overlap}px_overlap',
-                device=f'cuda:{args.gpu}',
+                device=args.device,
                 saveas='h5',
                 batch_limit=args.batch_size
             )
@@ -166,7 +166,14 @@ def main():
     processor = initialize_processor(args)
 
     # ensure cuda is available
-    args.device = f'cuda:{args.gpu}' if torch.cuda.is_available() else 'cpu'
+    if torch.cuda.is_available():
+        args.device = f'cuda:{args.gpu}'
+
+    elif torch.backends.mps.is_available():
+        args.device = 'mps'
+
+    else:
+        args.device = 'cpu'
 
     if args.task == 'all':
         args.task = 'seg'

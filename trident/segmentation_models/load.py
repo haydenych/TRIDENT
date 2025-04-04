@@ -9,6 +9,7 @@ from huggingface_hub import snapshot_download
 
 from trident.IO import get_dir, get_weights_path
 
+
 class SegmentationModel(torch.nn.Module):
     def __init__(self, freeze=True, confidence_thresh=0.5, **build_kwargs):
         super().__init__()
