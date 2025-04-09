@@ -50,8 +50,8 @@ class HESTSegmenter(SegmentationModel):
             raise Exception(
                 "Failed to download PyTorch Vision or load deeplabv3_resnet50 from cache.\n"
                 "Make sure you have internet access or you have pre-downloaded the files into the PyTorch cache directory.\n"
-                "Run `git clone --branch v0.10.0 --depth 1 https://github.com/pytorch/vision.git pytorch_vision_v0.10.0` and"
-                "place in the folder specified by the PyTorch cache directory, `torch.hub.get_dir()`"
+                "Run `git clone --branch v0.10.0 --depth 1 https://github.com/pytorch/vision.git pytorch_vision_v0.10.0` and "
+                "place in the folder specified by the PyTorch cache directory `torch.hub.get_dir()`"
             )
 
         model.classifier[4] = nn.Conv2d(
