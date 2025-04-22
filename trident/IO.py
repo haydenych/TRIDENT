@@ -89,11 +89,11 @@ def get_weights_path(model_type, encoder_name):
 
     if os.getenv('LOCAL_CKPTS'):
         if model_type == 'patch':
-            root = os.path.join(os.getenv('LOCAL_CKPTS'), "patch_encoder_ckpts.json")
+            registry_path = os.path.join(os.getenv('LOCAL_CKPTS'), "patch_encoder_ckpts.json")
         elif model_type == "slide":
-            root = os.path.join(os.getenv('LOCAL_CKPTS'), "slide_encoder_ckpts.json")
+            registry_path = os.path.join(os.getenv('LOCAL_CKPTS'), "slide_encoder_ckpts.json")
         else:
-            root = os.path.join(os.getenv('LOCAL_CKPTS'), "segmentation_ckpts.json")
+            registry_path = os.path.join(os.getenv('LOCAL_CKPTS'), "segmentation_ckpts.json")
             
     else:
         if model_type == 'patch' or model_type == 'slide':
@@ -101,7 +101,8 @@ def get_weights_path(model_type, encoder_name):
         else:
             root = os.path.join(os.path.dirname(__file__), "segmentation_models")
 
-    registry_path = os.path.join(root, "local_ckpts.json")
+        registry_path = os.path.join(root, "local_ckpts.json")
+
     with open(registry_path, "r") as f:
         registry = json.load(f)
 
