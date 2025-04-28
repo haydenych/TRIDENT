@@ -1,6 +1,6 @@
 import traceback
 from abc import abstractmethod
-from typing import Optional
+from typing import Literal, Optional
 import torch
 import os 
 
@@ -99,6 +99,8 @@ def encoder_factory(model_name: str, **kwargs):
         enc = KaikoL14InferenceEncoder
     elif model_name == 'lunit-vits8':
         enc = LunitS8InferenceEncoder
+    elif model_name == 'midnight12k':
+        enc = Midnight12kInferenceEncoder
     else:
         raise ValueError(f"Unknown encoder name {model_name}")
 
@@ -172,6 +174,7 @@ class BasePatchEncoder(torch.nn.Module):
 
 
 class CustomInferenceEncoder(BasePatchEncoder):
+
     def __init__(self, enc_name, model, transforms, precision):
         """
         Initialize a CustomInferenceEncoder from user-defined components.
@@ -201,6 +204,12 @@ class CustomInferenceEncoder(BasePatchEncoder):
 
 class MuskInferenceEncoder(BasePatchEncoder):
     
+    def __init__(self, **build_kwargs):
+        """
+        MUSK initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(self, inference_aug=False, with_proj=False, out_norm=False, return_global=True):
         """
         Args:
@@ -252,6 +261,12 @@ class MuskInferenceEncoder(BasePatchEncoder):
 
 class Conchv1InferenceEncoder(BasePatchEncoder):
 
+    def __init__(self, **build_kwargs):
+        """
+        CONCH initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(self, with_proj=False, normalize=False):
         self.enc_name = 'conch_v1'
         self.with_proj = with_proj
@@ -291,6 +306,12 @@ class Conchv1InferenceEncoder(BasePatchEncoder):
     
 
 class CTransPathInferenceEncoder(BasePatchEncoder):
+
+    def __init__(self, **build_kwargs):
+        """
+        CTransPath initialization.
+        """
+        super().__init__(**build_kwargs)
 
     def _build(self):
         from torchvision.transforms import InterpolationMode
@@ -345,6 +366,12 @@ class CTransPathInferenceEncoder(BasePatchEncoder):
 
 class PhikonInferenceEncoder(BasePatchEncoder):
 
+    def __init__(self, **build_kwargs):
+        """
+        Phikon initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(self):
         from transformers import ViTModel
         from torchvision.transforms import InterpolationMode
@@ -387,6 +414,12 @@ class PhikonInferenceEncoder(BasePatchEncoder):
 
 class HibouLInferenceEncoder(BasePatchEncoder):
 
+    def __init__(self, **build_kwargs):
+        """
+        Hibou initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(self):
         from transformers import AutoModel
         from torchvision.transforms import InterpolationMode
@@ -424,6 +457,12 @@ class KaikoInferenceEncoder(BasePatchEncoder):
     MODEL_NAME = None  # set in subclasses
     HF_HUB_ID = None # set in subclasses
     IMG_SIZE = None
+
+    def __init__(self, **build_kwargs):
+        """
+        Kaiko initialization.
+        """
+        super().__init__(**build_kwargs)
 
     def _build(self):
         import timm
@@ -475,32 +514,69 @@ class KaikoS16InferenceEncoder(KaikoInferenceEncoder):
     HF_HUB_ID = "vit_small_patch16_224"
     IMG_SIZE = 224
 
+    def __init__(self, **build_kwargs):
+        """
+        Kaiko Small 16 initialization.
+        """
+        super().__init__(**build_kwargs)
+    
 
 class KaikoS8InferenceEncoder(KaikoInferenceEncoder):
     MODEL_NAME = "vits8"
     HF_HUB_ID = "vit_small_patch8_224"
     IMG_SIZE = 224
 
+    def __init__(self, **build_kwargs):
+        """
+        Kaiko Small 8 initialization.
+        """
+        super().__init__(**build_kwargs)
+    
 
 class KaikoB16InferenceEncoder(KaikoInferenceEncoder):
     MODEL_NAME = "vitb16"
     HF_HUB_ID = "vit_base_patch16_224"
     IMG_SIZE = 224
 
+    def __init__(self, **build_kwargs):
+        """
+        Kaiko Base 16 initialization.
+        """
+        super().__init__(**build_kwargs)
+    
 
 class KaikoB8InferenceEncoder(KaikoInferenceEncoder):
     MODEL_NAME = "vitb8"
     HF_HUB_ID = "vit_base_patch8_224"
     IMG_SIZE = 224
 
+    def __init__(self, **build_kwargs):
+        """
+        Kaiko Base 8 initialization.
+        """
+        super().__init__(**build_kwargs)
+    
 
 class KaikoL14InferenceEncoder(KaikoInferenceEncoder):
     MODEL_NAME = "vitl14"
     HF_HUB_ID = "vit_large_patch14_reg4_dinov2"
     IMG_SIZE = 518
 
+    def __init__(self, **build_kwargs):
+        """
+        Kaiko Large 14 initialization.
+        """
+        super().__init__(**build_kwargs)
+    
 
 class ResNet50InferenceEncoder(BasePatchEncoder):
+
+    def __init__(self, **build_kwargs):
+        """
+        ResNet50-ImageNet initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(
         self, 
         pretrained=True, 
@@ -559,6 +635,12 @@ class ResNet50InferenceEncoder(BasePatchEncoder):
 
 class LunitS8InferenceEncoder(BasePatchEncoder):
 
+    def __init__(self, **build_kwargs):
+        """
+        Lunit initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(self):
         import timm
         from timm.data import resolve_model_data_config
@@ -593,6 +675,13 @@ class LunitS8InferenceEncoder(BasePatchEncoder):
     
 
 class UNIInferenceEncoder(BasePatchEncoder):
+
+    def __init__(self, **build_kwargs):
+        """
+        UNI initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(
         self, 
         timm_kwargs={"dynamic_img_size": True, "num_classes": 0, "init_values": 1e-5}
@@ -640,6 +729,12 @@ class UNIInferenceEncoder(BasePatchEncoder):
     
 
 class UNIv2InferenceEncoder(BasePatchEncoder):
+
+    def __init__(self, **build_kwargs):
+        """
+        UNIv2 initialization.
+        """
+        super().__init__(**build_kwargs)
 
     def _build(self):
         import timm
@@ -695,6 +790,12 @@ class UNIv2InferenceEncoder(BasePatchEncoder):
 
 class GigaPathInferenceEncoder(BasePatchEncoder):
 
+    def __init__(self, **build_kwargs):
+        """
+        GigaPath initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(
         self, 
     ):
@@ -749,6 +850,12 @@ class GigaPathInferenceEncoder(BasePatchEncoder):
 class VirchowInferenceEncoder(BasePatchEncoder):
     import timm
     
+    def __init__(self, **build_kwargs):
+        """
+        Virchow initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(
         self,
         return_cls=False,
@@ -816,6 +923,12 @@ class VirchowInferenceEncoder(BasePatchEncoder):
 class Virchow2InferenceEncoder(BasePatchEncoder):
     import timm
     
+    def __init__(self, **build_kwargs):
+        """
+        Virchow 2 initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(
         self,
         return_cls=False,
@@ -883,6 +996,12 @@ class Virchow2InferenceEncoder(BasePatchEncoder):
 
 class HOptimus0InferenceEncoder(BasePatchEncoder):
 
+    def __init__(self, **build_kwargs):
+        """
+        H-Optimus0 initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(
         self,
         timm_kwargs={'init_values': 1e-5, 'dynamic_img_size': False}
@@ -933,6 +1052,13 @@ class HOptimus0InferenceEncoder(BasePatchEncoder):
 
 
 class HOptimus1InferenceEncoder(BasePatchEncoder):
+
+    def __init__(self, **build_kwargs):
+        """
+        H-Optimus1 initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(
         self,
         timm_kwargs={'init_values': 1e-5, 'dynamic_img_size': False},
@@ -985,6 +1111,12 @@ class HOptimus1InferenceEncoder(BasePatchEncoder):
 
 class Phikonv2InferenceEncoder(BasePatchEncoder):
 
+    def __init__(self, **build_kwargs):
+        """
+        Phikonv2 initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(self):
         from transformers import AutoModel
         import torchvision.transforms as T
@@ -1029,6 +1161,12 @@ class Phikonv2InferenceEncoder(BasePatchEncoder):
 
 class Conchv15InferenceEncoder(BasePatchEncoder):
 
+    def __init__(self, **build_kwargs):
+        """
+        CONCHv1.5 initialization.
+        """
+        super().__init__(**build_kwargs)
+
     def _build(self, img_size=448):
         from trident.patch_encoder_models.model_zoo.conchv1_5.conchv1_5 import create_model_from_pretrained
 
@@ -1054,3 +1192,64 @@ class Conchv15InferenceEncoder(BasePatchEncoder):
 
         precision = torch.float16
         return model, eval_transform, precision
+
+
+class Midnight12kInferenceEncoder(BasePatchEncoder):
+
+    def __init__(self, **build_kwargs):
+        """
+        Midnight 12-k initialization by Kaiko.
+        """
+        super().__init__(**build_kwargs)
+
+    def _build(self, return_type: Literal["cls_token", "cls+mean"] = "cls_token"):
+        from transformers import AutoModel
+        from .utils.constants import KAIKO_MEAN, KAIKO_STD
+        from torchvision import transforms
+
+        self.enc_name = "midnight12k"
+        weights_path = self._get_weights_path()
+
+        if weights_path:
+            try:
+                model_dir = os.path.dirname(weights_path)
+                model = AutoModel.from_pretrained(model_dir)
+            except:
+                traceback.print_exc()
+                raise Exception(
+                    f"Failed to create Midnight-12k model from local checkpoint at '{weights_path}'. "
+                    "You can download the required `model.safetensors` and `config.json` from: https://huggingface.co/kaiko-ai/midnight."
+                )
+        else:
+            self.ensure_has_internet(self.enc_name)
+            try:
+                model = AutoModel.from_pretrained("kaiko-ai/midnight")
+            except:
+                traceback.print_exc()
+                raise Exception("Failed to download Midnight-12k model")
+
+        eval_transform = transforms.Compose(
+            [
+                transforms.Resize(224),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=KAIKO_MEAN, std=KAIKO_STD),
+            ]
+        )
+
+        precision = torch.float32
+        self.return_type = return_type
+        return model, eval_transform, precision
+
+    def forward(self, x):
+        out = self.model(x).last_hidden_state
+        cls_token = out[:, 0, :]
+        if self.return_type == "cls_token":
+            return cls_token
+        elif self.return_type == "cls+mean":
+            patch_embeddings = out[:, 1:, :]
+            return torch.cat([cls_token, patch_embeddings.mean(1)], dim=-1)
+        else:
+            raise ValueError(
+                f"expected return_type to be one of 'cls_token' or 'cls+mean', but got '{self.return_type}'"
+            )
